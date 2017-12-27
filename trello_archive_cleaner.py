@@ -1,6 +1,12 @@
 import requests
 import json
 
+class TrelloRestClient:
+
+    def send_get(self, url, params={}):
+        get_response = requests.get(url, params=params)
+        return get_response
+
 class AuthInfo:
     
     def __init__(self, api_key=None, oauth_token=None):
@@ -14,17 +20,25 @@ class AuthInfo:
             self.oauth_token = auth_json["oauth_token"]
 
 class Board:
-    def __init__(self, board_id, name):
+    def __init__(self, board_id, name, closed):
         self.board_id = board_id
         self.name = name
 
-class TrelloRestClient:
-
-    def __init__(self, auth_info):
+class BoardGetter:
+    def __init__(self, rest_client, auth_info):
+        self.rest_client = rest_client
         self.auth_info = auth_info
 
-    def get_boards(self):
-        request_url = "https://api.trello.com/1/boards?fields=name,url&key={api_key}&token={oauth_token}".format(self.auth_info.api_key, self.auth_info.oauth_token)
-        boards_list_request = requests.get(request_url)
-        boards_json = boards_list_request.json()
-        return boards_json
+    def get_boards(self, username):
+        board_base_url = "https://api.trello.com/1/members/{username}/boards".format(username=username)
+        board_list_params = {
+            "fields": "id,name",
+            "key": self.auth_info.api_key,
+            "token": self.auth_info.oauth_token
+        }
+        get_boards_response = self.rest_client.send_get(board_base_url, params=board_list_params)
+        if get_boards_response.status_code != 200:
+            raise Exception("Received status code: {}".format(str(get_boards_response.status_code)))
+        boards_json = get_boards_response.json()
+        
+        
