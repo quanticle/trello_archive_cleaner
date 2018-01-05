@@ -20,7 +20,7 @@ class AuthInfo:
             self.oauth_token = auth_json["oauth_token"]
 
 class Board:
-    def __init__(self, board_id, name, closed):
+    def __init__(self, board_id, name):
         self.board_id = board_id
         self.name = name
 
@@ -40,5 +40,10 @@ class BoardGetter:
         if get_boards_response.status_code != 200:
             raise Exception("Received status code: {}".format(str(get_boards_response.status_code)))
         boards_json = get_boards_response.json()
+        boards = []
+        for board_json in boards_json:
+            boards.append(Board(board_json["id"], board_json["name"]))
+        return boards
+            
         
         
