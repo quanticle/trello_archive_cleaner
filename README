@@ -1,0 +1,3 @@
+Trello Archive Cleaner
+
+A script to bulk-delete archived Trello cards, as Trello does not provide that functionality natively.
